@@ -1,0 +1,40 @@
+#程序初始化
+string ls_Buffer=Space(255)
+string ls_current
+
+ls_current=GetCurrentDirectory() //取得程序当前目录
+
+ls_current = ls_current+"\pb.ini"
+
+//从ini文件读取话单文件目录相关信息
+str_u2990_mulu=ProfileString(ls_current,"Mulu","str_u2990_programmulu","")
+str_u1911_mulu=ProfileString(ls_current,"Mulu","str_u1911_programmulu","")
+str_wz_mulu=ProfileString(ls_current,"Mulu","str_wz_programmulu","")
+str_u2990_huadan_mulu_ucsoc=ProfileString(ls_current,"Mulu","str_u2990_huadan_mulu_ucsoc","")
+str_u2990_huadan_mulu_ucstc=ProfileString(ls_current,"Mulu","str_u2990_huadan_mulu_ucstc","")
+str_u1911_huadan_mulu=ProfileString(ls_current,"Mulu","str_u1911_huadan_mulu","")
+str_wz_huadan_mulu=ProfileString(ls_current,"Mulu","str_wz_huadan_mulu","")
+str_yuanshi=ProfileString(ls_current,"Mulu","str_yuanshimulu","")
+str_setup=ProfileString(ls_current,"Mulu","str_setup","")
+str_tape=ProfileString(ls_current,"Mulu","str_tape","")
+str_u2990=str_u2990_mulu+"\conversion.exe"
+str_u1911=str_u1911_mulu+"\convert.exe"
+str_wz=str_wz_mulu+"\convert.exe"
+
+if str_u2990_mulu="" or len(str_u2990_mulu)=0 then 
+	messagebox("提示!","U2990转换程序路径配置为空!请配置!")
+	return
+end if
+
+if str_u1911_mulu="" or len(str_u1911_mulu)=0 then
+	messagebox("提示!","U1911转换程序路径配置为空!请配置!")
+	return
+end if
+
+if str_wz_mulu="" or len(str_wz_mulu)=0 then
+	messagebox("提示!","外招转换程序路径配置为空!请配置!")
+	return
+end if
+
+	
+open(w_choice_program)
