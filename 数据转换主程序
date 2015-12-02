@@ -38,3 +38,241 @@ end if
 
 	
 open(w_choice_program)
+
+int ll_index,mulutest,filetest,total_count,total_count_2
+string str_wjj,str_sourcefile_equip,str_sourcefile_equip_date,str_targetfile_temp
+long mulu_count,muluind,ind,filecount,fileind
+
+
+//判断是否输入了文件夹名字
+wjjname=sle_1.text
+if len(wjjname) =0 or wjjname="" then
+	messagebox("提示!","请输入文件夹名字!")
+end if
+
+str_sourcefile=str_yuanshi+"\"+sle_1.text
+lb_1.dirlist(str_sourcefile+"\*.*",16)
+if lb_1.TotalItems() <> 4 then
+	messagebox("提示!","该目录："+wjjname+"的话单文件夹存个数存在异常!请检查符合规定的目录结构!")
+	return
+end if
+
+//移动2990下的话单
+if rb_1.checked=true then 
+	total_count=0
+	total_count_2=0
+	SetPointer(HourGlass!)
+	ll_index=lb_1.finditem("u2990",0)	
+	if ll_index=-1 then 
+		messagebox("提示!","找不到U2990原始话单目录，请检查文件名!")
+	else
+		str_wjj=mid(lb_1.text(ll_index),pos(lb_1.text(ll_index),"[",1)+1,pos(lb_1.text(ll_index),"]",1)-2)
+		str_sourcefile_equip=str_sourcefile+"\"+str_wjj+"\*.*"
+		lb_1.reset()
+		lb_1.dirlist(str_sourcefile_equip,16)
+		mulu_count=lb_1.totalitems()
+		muluind=lb_1.top()
+		
+		for mulutest = muluind to mulu_count
+			if lb_1.text(mulutest) <> "[..]" and right(lb_1.text(mulutest),3)<>"tar" and left(lb_1.text(mulutest),1)="[" and right(lb_1.text(mulutest),1)="]" then 
+				str_sourcefile_equip_date=str_sourcefile+"\"+str_wjj+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)+"\*.dat"
+				lb_2.dirlist(str_sourcefile_equip_date,0)
+				filecount=lb_2.totalitems()
+				fileind=lb_2.top()
+				for filetest=fileind to filecount
+					if left(lb_2.text(filetest),5)="ucsoc" or left(lb_2.text(filetest),5)="UCSOC" then
+						str_targetfile=str_u2990_huadan_mulu_ucsoc
+						FileCopy(str_sourcefile+"\"+str_wjj+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)+"\"+lb_2.text(filetest),str_targetfile+"\"+lb_2.text(filetest),true)
+						total_count=total_count+1
+					elseif left(lb_2.text(filetest),5)="ucstc" or left(lb_2.text(filetest),5)="UCSTC" then
+						str_targetfile=str_u2990_huadan_mulu_ucstc
+						FileCopy(str_sourcefile+"\"+str_wjj+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)+"\"+lb_2.text(filetest),str_targetfile+"\"+lb_2.text(filetest),true)
+						total_count_2=total_count_2+1
+					else
+						messagebox("提示!","U2990目录下存在格式异常文件，文件名为:"+lb_2.text(filetest))
+					end if
+				next
+			end if
+		next
+		st_tongji.text="本次移动U2990话单主叫文件:"+string(total_count)+"个"+&
+		"   本次移动U2990话单被叫文件:"+string(total_count_2)+"个"
+		messagebox("提示!","已经移动目录完毕!")
+	end if
+end if
+
+//移动1911下的话单
+if rb_2.checked=true then 
+	total_count=0
+	total_count_2=0
+	
+	//在listbox控件中列出所有子目录
+	ll_index=lb_1.finditem("u1911",0)
+	if ll_index=-1 then 
+		messagebox("提示!","找不到U1911原始话单目录，请检查文件名!")
+		return
+	else
+		str_wjj=mid(lb_1.text(ll_index),pos(lb_1.text(ll_index),"[",1)+1,pos(lb_1.text(ll_index),"]",1)-2)
+		str_sourcefile_equip=str_sourcefile+"\"+str_wjj+"\*.*"
+		lb_1.reset()
+		lb_1.dirlist(str_sourcefile_equip,16)
+		mulu_count=lb_1.totalitems()
+		muluind=lb_1.top()
+		
+		for mulutest = muluind to mulu_count
+			if lb_1.text(mulutest) <> "[..]" and left(lb_1.text(mulutest),1)="[" and right(lb_1.text(mulutest),1)="]" then
+				str_sourcefile_equip_date=str_sourcefile+"\"+str_wjj+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)+"\*.bill"
+				lb_2.dirlist(str_sourcefile_equip_date,0)
+				filecount=lb_2.totalitems()
+				fileind=lb_2.top()
+				str_targetfile_temp=str_targetfile+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)
+				CreateDirectory(str_targetfile_temp)
+				for filetest=fileind to filecount
+					FileCopy(str_sourcefile+"\"+str_wjj+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)+"\"+lb_2.text(filetest),str_targetfile_temp+"\"+lb_2.text(filetest),true)
+					total_count_2=total_count_2+1 // 移动话单文件的个数
+				next
+				total_count=total_count+1 //移动文件夹的个数
+			end if
+		next
+		st_tongji.text="本次移动U1911话单文件夹:"+string(total_count)+"个"+&
+		"   本次移动U1911话单文件:"+string(total_count_2)+"个"
+		messagebox("提示!","已经移动目录完毕!")
+	end if
+end if 
+
+#自动移动话单文件
+//移动wz下的话单
+if rb_3.checked=true then 
+	total_count=0
+	total_count_2=0
+	//在listbox控件中列出所有子目录
+	ll_index=lb_1.finditem("u1960",0)
+	if ll_index=-1 then 
+		messagebox("提示!","找不到外招原始话单目录，请检查文件名!")
+		return
+	else
+		str_wjj=mid(lb_1.text(ll_index),pos(lb_1.text(ll_index),"[",1)+1,pos(lb_1.text(ll_index),"]",1)-2)
+		str_sourcefile_equip=str_sourcefile+"\"+str_wjj+"\*.*"
+		
+		lb_1.reset()
+		lb_1.dirlist(str_sourcefile_equip,16)
+		mulu_count=lb_1.totalitems()
+		muluind=lb_1.top()
+		
+		for mulutest = muluind to mulu_count
+			if lb_1.text(mulutest) <> "[..]" and left(lb_1.text(mulutest),1)="[" and right(lb_1.text(mulutest),1)="]" then
+				str_sourcefile_equip_date=str_sourcefile+"\"+str_wjj+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)+"\*.bill"
+				lb_2.dirlist(str_sourcefile_equip_date,0)
+				filecount=lb_2.totalitems()
+				fileind=lb_2.top()
+				str_targetfile_temp=str_targetfile+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)
+				CreateDirectory(str_targetfile_temp)
+				for filetest=fileind to filecount
+					FileCopy(str_sourcefile+"\"+str_wjj+"\"+mid(lb_1.text(mulutest),pos(lb_1.text(mulutest),"[",1)+1,len(lb_1.text(mulutest))-2)+"\"+lb_2.text(filetest),str_targetfile_temp+"\"+lb_2.text(filetest),true)
+					total_count_2=total_count_2+1
+				next
+				total_count=total_count+1
+			end if
+		next
+		st_tongji.text="本次移动外招话单文件夹:"+string(total_count)+"个"+&
+		"    本次移动外招话单文件:"+string(total_count_2)+"个"
+		messagebox("提示!","已经移动目录完毕!")
+	end if
+end if 
+
+#自动合并话单文件
+string he_wj,str_var
+string u2990_path_c,u1911_path_c,u1960_path_c,u2990_path_t,u1911_path_t,u1960_path_t
+int file_jb,i,j
+long count,c_count,t_count,cf_c_count,cf_t_count
+
+he_wj=sle_1.text
+
+//判断文件名是否为空
+if len(he_wj)=0 or he_wj=""  then 
+	messagebox("提示!","请输入文件名!")
+	return
+elseif not isnumber(he_wj) or len(he_wj)<>6 or integer(mid(he_wj,3,2))>12 or integer(mid(he_wj,3,2))=0 or integer(right(he_wj,2))>31 or integer(right(he_wj,2))=0  then
+	messagebox("提示!","请输入正确格式(年/月/日)的文件名! 如：150101")
+	return	
+end if 
+
+SetPointer(HourGlass!)
+
+//根据输入的文件名分别构造U2990，U1911，U1960的长话和市话文件
+u2990_path_c=str_setup+"\c"+he_wj+"(2990).dbf"
+u2990_path_t=str_setup+"\t"+he_wj+"(2990).dbf"
+u1911_path_c=str_setup+"\c"+he_wj+"(1911).dbf"
+u1911_path_t=str_setup+"\t"+he_wj+"(1911).dbf"
+u1960_path_c=str_setup+"\c"+he_wj+"(wz).dbf"
+u1960_path_t=str_setup+"\t"+he_wj+"(wz).dbf"
+
+//三个市话话单同时存在才能进行下一步操作
+if FileExists(u2990_path_c) and FileExists(u1911_path_c) and FileExists(u1960_path_c) then
+
+	tab_1.tabpage_3.dw_3.DataObject="d_db_shihua"
+	
+	//导入U2990话单
+	count=tab_1.tabpage_3.dw_3.ImportFile(u2990_path_c,1,1000000,1,6)
+	tab_1.tabpage_3.dw_3.RowsMove(1,count,Primary!,tab_1.tabpage_1.dw_1,1000000,Primary!)
+	tab_1.tabpage_3.dw_3.reset()
+	
+	//导入U1911话单
+	count=tab_1.tabpage_3.dw_3.ImportFile(u1911_path_c,1,1000000,1,6)
+	tab_1.tabpage_3.dw_3.RowsMove(1,count,Primary!,tab_1.tabpage_1.dw_1,1000000,Primary!)
+	tab_1.tabpage_3.dw_3.reset()
+	
+	//导入U1960话单
+	count=tab_1.tabpage_3.dw_3.ImportFile(u1960_path_c,1,1000000,1,6)
+	tab_1.tabpage_3.dw_3.RowsMove(1,count,Primary!,tab_1.tabpage_1.dw_1,1000000,Primary!)
+	tab_1.tabpage_3.dw_3.reset()
+	
+	c_count=tab_1.tabpage_1.dw_1.Rowcount()
+	
+//	//查重复记录
+//	for i=1 to c_count 
+//		for j=1 to c_count
+//			/*tab_1.tabpage_1.dw_1.otele[i]=tab_1.tabpage_1.dw_1.otele[j] and &*/
+//			if tab_1.tabpage_1.dw_1.object.otele[i]=tab_1.tabpage_1.dw_1.object.otele[j] and &
+//				tab_1.tabpage_1.dw_1.object.ttele[i]=tab_1.tabpage_1.dw_1.object.ttele[j] and &
+//				tab_1.tabpage_1.dw_1.object.ccd[i]=tab_1.tabpage_1.dw_1.object.ccd[j] and &
+//				tab_1.tabpage_1.dw_1.object.cct[i]=tab_1.tabpage_1.dw_1.object.cct[j] and &
+//				tab_1.tabpage_1.dw_1.object.ct[i]=tab_1.tabpage_1.dw_1.object.ct[j] and &
+//				tab_1.tabpage_1.dw_1.object.otgi[i]=tab_1.tabpage_1.dw_1.object.otgi[j] then
+//				cf_c_count=cf_c_count+1
+//			end if
+//      next
+//	next
+else
+	messagebox("提示!",str_setup+"目录下缺少市话话单")
+end if
+
+
+//三个长话话单同时存在才能进行下一步操作
+if FileExists(u2990_path_t) and FileExists(u1911_path_t) and FileExists(u1960_path_t) then
+
+	tab_1.tabpage_3.dw_3.DataObject="d_db_changhua"
+	
+	//导入U2990话单
+	count=tab_1.tabpage_3.dw_3.ImportFile(u2990_path_t,1,1000000,1,6)
+	tab_1.tabpage_3.dw_3.RowsMove(1,count,Primary!,tab_1.tabpage_2.dw_2,1000000,Primary!)
+	tab_1.tabpage_3.dw_3.reset()
+	
+	//导入U1911话单
+	count=tab_1.tabpage_3.dw_3.ImportFile(u1911_path_t,1,1000000,1,6)
+	tab_1.tabpage_3.dw_3.RowsMove(1,count,Primary!,tab_1.tabpage_2.dw_2,1000000,Primary!)
+	tab_1.tabpage_3.dw_3.reset()
+	
+	//导入U1960话单
+	count=tab_1.tabpage_3.dw_3.ImportFile(u1960_path_t,1,1000000,1,6)
+	tab_1.tabpage_3.dw_3.RowsMove(1,count,Primary!,tab_1.tabpage_2.dw_2,1000000,Primary!)
+	tab_1.tabpage_3.dw_3.reset()
+	
+	t_count=tab_1.tabpage_2.dw_2.Rowcount()	
+else
+	messagebox("提示!",str_setup+"目录下缺少长话话单")
+end if
+
+st_3.text="本次合并市话:"+string(c_count)+"条!"+"         "+"本次合并长话:"+string(t_count)+"条"
+messagebox("提示!","合并话单完毕!请保存!")
+cb_3.enabled=true
+
